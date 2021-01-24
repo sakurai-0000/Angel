@@ -23,69 +23,138 @@ module.exports.getAll = async () => {
     const result = await dynamo.scan(params).promise();
     // 正常に取得できたらその値を返す
     return {
-      statusCode: 200,
-      body: JSON.stringify(result.Items),
+      status: 'successed',
+      result: result.Items,
     };
   } catch (error) {
     // エラーが発生したらエラー情報を返す
     return {
-      statusCode: error.statusCode,
-      body: error.message,
+      status: 'failed',
+      result: error.message,
     };
   }
 };
 
 module.exports.get = async event => {
   // パラメータで渡されたidを取得
-  const { id } = event;
-
+  const { id, mail_adress } = event;
   // 検索条件のidを指定
   const params = {
     TableName: tableName,
-    Key: { id },
+    Key: { id, mail_adress },
   };
 
   try {
     const result = await dynamo.get(params).promise();
     return {
-      statusCode: 200,
-      body: JSON.stringify(result.Item),
+      status: 'successed',
+      result: result.Item,
     };
   } catch (error) {
     return {
-      statusCode: error.statusCode,
-      body: error.message,
+      status: 'failed',
+      result: error.message,
     };
   }
 };
 
 // 1件登録
-module.exports.put = async event => {
+module.exports.put = async (event, angelRes) => {
   // 一意な値を作るためにタイムスタンプを取得
   const id = String(Date.now());
-  const { message } = event;
+  const { mail_adress } = event;
 
   const params = {
     TableName: tableName,
-    Item: { id, message },
+    Item: { 
+      id,
+      name: mail_adress,
+      mail_adress: mail_adress,
+      number_of_login: 1,
+      number_of_angel: angelRes ? 1 : 0,
+      number_of_bonus: 0,
+      updated_by: "sakurai ryutarou",
+      updated_at: "2021-01-24"
+    },
   };
   try {
     const result = await dynamo.put(params).promise();
     return {
-      statusCode: 200,
-      body: JSON.stringify(result),
+      status: 'successed',
+      result: result,
     };
   } catch (error) {
     return {
-      statusCode: error.statusCode,
-      body: error.message,
+      status: 'failed',
+      result: error.message,
     };
   }
 };
 
-module.exports.hello = async event => {
+module.exports.paraCheck = async event => {
+  if ((!event.id || event.id === undefined)
+    || (!event.mail_adress || event.mail_adress === undefined)) {
+    return false;
+  }
+  return true;
+};
+
+module.exports.angelChallenge = () => {
+  const random = Math.floor(Math.random() * 10);
   return {
-    statusCode: 200,
-    body: JSON.stringify({ message: event }),
+    res: random > 7,
+  }
+};
+
+module.exports.angelBonus = info => {
+  const { number_of_bonus: num } = info.result;
+  return {
+    res: (num + 1) % 5 === 0,
+    num: num + 1,
   };
+};
+
+module.exports.angelBonus = info => {
+  const { number_of_bonus: num } = info.result;
+  return {
+    num: num + 1,
+    res: (num + 1) % 5 === 0,
+  };
+};
+
+// 1件更新
+module.exports.update = async (event, angelRes, bonusRes) => {
+  const { result } = event;
+  const { id, mail_adress } = event.result;
+  const params = {
+    TableName: tableName,
+    Key: { id, mail_adress },
+    ExpressionAttributeNames: {
+      '#l': 'number_of_login',
+      '#a': 'number_of_angel',
+      '#b': 'number_of_bonus',
+      '#ub': 'updated_by',
+      '#ua': 'updated_at',
+    },
+    ExpressionAttributeValues: {
+      ':nawNumber_of_login': result.number_of_login + 1,
+      ':nawNumber_of_angel': angelRes ? result.number_of_angel + 1 : result.number_of_angel,
+      ':nawNumber_of_bonus': bonusRes.res ? result.number_of_bonus + 1 : result.number_of_bonus,
+      ':nawUpdated_by': 'sakurai',
+      ':nawUpdated_at': '2021-01-25',
+    },
+    UpdateExpression: 'SET #l = :nawNumber_of_login, #a = :nawNumber_of_angel, #b = :nawNumber_of_bonus, #ub = :nawUpdated_by, #ua = :nawUpdated_at'
+  };
+  try {
+    const result = await dynamo.update(params).promise();
+    return {
+      status: 'successed',
+      result: result,
+    };
+  } catch (error) {
+    return {
+      status: 'failed',
+      result: error.message,
+    };
+  }
 };

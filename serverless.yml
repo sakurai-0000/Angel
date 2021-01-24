@@ -19,27 +19,46 @@ provider:
         - dynamodb:DeleteItem
       Resource: 'arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.DYNAMODB_TABLE}*'
 functions:
-  hello:
-    handler: handler.hello
   getAll:
     handler: handler.getAll
     environment:
-      tableName: ${self:provider.environment.DYNAMODB_TABLE}-hello
+      tableName: ${self:provider.environment.DYNAMODB_TABLE}-info
   get:
     handler: handler.get
     environment:
-      tableName: ${self:provider.environment.DYNAMODB_TABLE}-hello
+      tableName: ${self:provider.environment.DYNAMODB_TABLE}-info
   put:
     handler: handler.put
     environment:
-      tableName: ${self:provider.environment.DYNAMODB_TABLE}-hello
+      tableName: ${self:provider.environment.DYNAMODB_TABLE}-info
+  angel:
+    handler: angel.angel
+    environment:
+      tableName: ${self:provider.environment.DYNAMODB_TABLE}-info
 # DynamoDBの設定
 resources:
   Resources:
     Hello:
       Type: AWS::DynamoDB::Table
       Properties:
-        TableName: ${self:provider.environment.DYNAMODB_TABLE}-hello
+        TableName: ${self:provider.environment.DYNAMODB_TABLE}-info
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+          - AttributeName: mail_adress
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+          - AttributeName: mail_adress
+            KeyType: S
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+    AngelStatus:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.DYNAMODB_TABLE}-info
         AttributeDefinitions:
           - AttributeName: id
             AttributeType: S
@@ -62,5 +81,5 @@ custom:
     seed:
       hello:
         sources:
-          - table: ${self:provider.environment.DYNAMODB_TABLE}-hello
-            sources: [./seeds/hello.json]
+          - table: ${self:provider.environment.DYNAMODB_TABLE}-info
+            sources: [./seeds/info.json]

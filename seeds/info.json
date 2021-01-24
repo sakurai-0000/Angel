@@ -1,0 +1,32 @@
+[
+    {
+        "id": "1",
+        "name": "wakabayasi masayasu",
+        "mail_adress": "waka@gmail.com",
+        "number_of_login": 1,
+        "number_of_angel": 1,
+        "number_of_bonus": 1,
+        "updated_by": "sakurai ryutarou",
+        "updated_at": "2021-01-24"
+    },
+    {
+        "id": "2",
+        "name": "kasuga tosiaki",
+        "mail_adress": "kasu@gmail.com",
+        "number_of_login": 2,
+        "number_of_angel": 2,
+        "number_of_bonus": 2,
+        "updated_by": "sakurai ryutarou",
+        "updated_at": "2021-01-24"
+    },
+    {
+        "id": "3",
+        "name": "sakurai ryutarou",
+        "mail_adress": "saku@gmail.com",
+        "number_of_login": 3,
+        "number_of_angel": 3,
+        "number_of_bonus": 3,
+        "updated_by": "sakurai ryutarou",
+        "updated_at": "2021-01-24"
+    }
+]
