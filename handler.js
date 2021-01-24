@@ -66,9 +66,9 @@ module.exports.put = async (event, angelRes) => {
 
   const params = {
     TableName: tableName,
-    Item: { 
+    Item: {
       id,
-      name: mail_adress,
+      name: 'satomitu',
       mail_adress: mail_adress,
       number_of_login: 1,
       number_of_angel: angelRes ? 1 : 0,
@@ -125,7 +125,7 @@ module.exports.angelBonus = info => {
 // 1件更新
 module.exports.update = async (event, angelRes, bonusRes) => {
   const { result } = event;
-  const { id, mail_adress } = event.result;
+  const { id, mail_adress } = result;
   const params = {
     TableName: tableName,
     Key: { id, mail_adress },

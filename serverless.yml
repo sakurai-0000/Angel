@@ -35,6 +35,10 @@ functions:
     handler: angel.angel
     environment:
       tableName: ${self:provider.environment.DYNAMODB_TABLE}-info
+    events:
+      - http:
+          path: angel
+          method: get
 # DynamoDBの設定
 resources:
   Resources:
@@ -69,8 +73,11 @@ resources:
           ReadCapacityUnits: 1
           WriteCapacityUnits: 1
 plugins:
+  - serverless-offline
   - serverless-dynamodb-local
 custom:
+  serverless-offline:
+    httpPort: 8083
   dynamodb:
     stages: dev
     start:
