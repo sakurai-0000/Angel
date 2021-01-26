@@ -20,15 +20,19 @@ provider:
       Resource: 'arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.DYNAMODB_TABLE}*'
 functions:
   getAll:
-    handler: handler.getAll
+    handler: db.getAll
     environment:
       tableName: ${self:provider.environment.DYNAMODB_TABLE}-info
   get:
-    handler: handler.get
+    handler: db.get
     environment:
       tableName: ${self:provider.environment.DYNAMODB_TABLE}-info
   put:
-    handler: handler.put
+    handler: db.put
+    environment:
+      tableName: ${self:provider.environment.DYNAMODB_TABLE}-info
+  update:
+    handler: db.update
     environment:
       tableName: ${self:provider.environment.DYNAMODB_TABLE}-info
   angel:
@@ -38,7 +42,7 @@ functions:
     events:
       - http:
           path: angel
-          method: get
+          method: post
 # DynamoDBの設定
 resources:
   Resources:
