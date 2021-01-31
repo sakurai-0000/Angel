@@ -19,7 +19,7 @@ module.exports.angelChallenge = () => {
 };
 
 module.exports.angelBonus = info => {
-  if (info.result === {}) return {
+  if (!info.result) return {
     res: false,
     num: 0,
   };
