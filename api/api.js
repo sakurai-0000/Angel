@@ -4,15 +4,11 @@
 const AWS = require('aws-sdk');
 
 // 外部関数
-const handler = require('./handler');
-const db = require('./db');
+const handler = require('./services/angel');
+const db = require('./db/db');
 
 module.exports.angel = async req => {
-  const event = process.env.LOCAL
-    ? JSON.parse(req.body)
-    : req.queryStringParameters;
-
-  console.log(`req: ${event}`);
+  const event = JSON.parse(req.body);
   try {
     // パラメータチェック
     if (!await handler.paraCheck(event)) {
@@ -23,12 +19,11 @@ module.exports.angel = async req => {
     if (userInfo.status === 'failed') {
       throw new Error();
     }
-
     // Angel Challenge
     const angelRes = handler.angelChallenge();
 
     // Angel Bounus
-    const bonusRes = userInfo.result === {} ? handler.angelBonus(userInfo) : { res: false };
+    const bonusRes = handler.angelBonus(userInfo);
 
     // update
     const changeTableRes = !userInfo.result
@@ -43,7 +38,7 @@ module.exports.angel = async req => {
           status: 'successed',
           result: {
             id: event.id,
-            mail_adress: event.mail_adress,
+            name: event.name,
             isAngel: angelRes.res,
             isBonus: bonusRes.res,
           },

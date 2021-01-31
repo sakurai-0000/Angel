@@ -6,67 +6,50 @@ provider:
   region: ap-northeast-1
   lambdaHashingVersion: 20201221
   stage: dev
+  apiGateway:
+    shouldStartNameWithService: true
   environment:
     DYNAMODB_TABLE: ${self:service}-${self:provider.stage}
   iamRoleStatements:
     - Effect: Allow
       Action:
-        - dynamodb:Query
         - dynamodb:Scan
         - dynamodb:GetItem
         - dynamodb:PutItem
         - dynamodb:UpdateItem
-        - dynamodb:DeleteItem
       Resource: 'arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.DYNAMODB_TABLE}*'
 functions:
-  getAll:
-    handler: db.getAll
-    environment:
-      tableName: ${self:provider.environment.DYNAMODB_TABLE}-info
-  get:
-    handler: db.get
-    environment:
-      tableName: ${self:provider.environment.DYNAMODB_TABLE}-info
-  put:
-    handler: db.put
-    environment:
-      tableName: ${self:provider.environment.DYNAMODB_TABLE}-info
-  update:
-    handler: db.update
-    environment:
-      tableName: ${self:provider.environment.DYNAMODB_TABLE}-info
   angel:
-    handler: angel.angel
+    handler: api/api.angel
     environment:
-      tableName: ${self:provider.environment.DYNAMODB_TABLE}-info
+      tableName: ${self:provider.environment.DYNAMODB_TABLE}-status
     events:
       - http:
           path: angel
           method: post
+  getAll:
+    handler: api/db/db.getAll
+    environment:
+      tableName: ${self:provider.environment.DYNAMODB_TABLE}-status
+  get:
+    handler: api/db/db.get
+    environment:
+      tableName: ${self:provider.environment.DYNAMODB_TABLE}-status
+  put:
+    handler: api/db/db.put
+    environment:
+      tableName: ${self:provider.environment.DYNAMODB_TABLE}-status
+  update:
+    handler: api/db/db.update
+    environment:
+      tableName: ${self:provider.environment.DYNAMODB_TABLE}-status
 # DynamoDBの設定
 resources:
   Resources:
-    Hello:
+    Angel:
       Type: AWS::DynamoDB::Table
       Properties:
-        TableName: ${self:provider.environment.DYNAMODB_TABLE}-info
-        AttributeDefinitions:
-          - AttributeName: id
-            AttributeType: S
-          - AttributeName: mail_adress
-            AttributeType: S
-        KeySchema:
-          - AttributeName: id
-            KeyType: HASH
-          - AttributeName: mail_adress
-            KeyType: S
-        ProvisionedThroughput:
-          ReadCapacityUnits: 1
-          WriteCapacityUnits: 1
-    AngelStatus:
-      Type: AWS::DynamoDB::Table
-      Properties:
-        TableName: ${self:provider.environment.DYNAMODB_TABLE}-info
+        TableName: ${self:provider.environment.DYNAMODB_TABLE}-status
         AttributeDefinitions:
           - AttributeName: id
             AttributeType: S
@@ -90,7 +73,7 @@ custom:
       migrate: true
       seed: true
     seed:
-      hello:
+      angel:
         sources:
-          - table: ${self:provider.environment.DYNAMODB_TABLE}-info
+          - table: ${self:provider.environment.DYNAMODB_TABLE}-status
             sources: [./seeds/info.json]
